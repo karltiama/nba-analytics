@@ -1,0 +1,404 @@
+---
+alwaysApply: true
+---
+
+# NBA Betting Prediction Model - Cursor Rules
+
+## Project Overview
+This is a full-stack NBA betting prediction system that analyzes 10+ years of historical NBA data and betting odds to identify profitable betting opportunities using machine learning. The system consists of three main components: Next.js frontend/backend, Python ML service, and Supabase database.
+
+## Tech Stack
+- **Frontend**: Next.js 14+ with TypeScript, React Query for data fetching
+- **Backend**: Next.js API routes with Prisma ORM
+- **ML Service**: Python FastAPI with pandas, numpy, scikit-learn, XGBoost
+- **Database**: Supabase PostgreSQL
+- **Deployment**: Vercel (Next.js), Railway/Render (Python), Supabase hosted
+
+## Architecture Patterns
+
+### Three-Layer Architecture
+1. **Presentation Layer**: Next.js frontend with TypeScript
+2. **Business Logic Layer**: Next.js API routes with Prisma
+3. **ML Service Layer**: Python FastAPI microservice
+
+### Data Flow
+- Historical NBA data → Supabase PostgreSQL
+- Real-time odds → API integration → Supabase
+- ML predictions → FastAPI → Next.js API → Frontend
+- User betting history → Supabase → Performance tracking
+
+## Code Standards
+
+### TypeScript/JavaScript
+- Use strict TypeScript configuration
+- Prefer interfaces over types for object shapes
+- Use proper error handling with try-catch blocks
+- Implement proper type guards and validation
+- Use React Query for all data fetching operations
+- Follow Next.js 14+ app router conventions
+
+### Python
+- Use type hints for all function parameters and return values
+- Follow PEP 8 style guidelines
+- Use dataclasses or Pydantic models for data structures
+- Implement proper logging with structured logging
+- Use async/await for I/O operations in FastAPI
+
+### Database Design
+- Use Prisma schema for type-safe database operations
+- Implement proper indexing for query performance
+- Use UUIDs for primary keys where appropriate
+- Follow normalization principles but denormalize for ML performance
+- Implement soft deletes for audit trails
+
+## API Conventions
+
+### Next.js API Routes
+- Use RESTful conventions: GET, POST, PUT, DELETE
+- Implement proper HTTP status codes
+- Use middleware for authentication and validation
+- Return consistent response format: `{ success: boolean, data?: any, error?: string }`
+- Implement rate limiting for public endpoints
+
+### FastAPI ML Service
+- Use dependency injection for database connections
+- Implement proper request/response models with Pydantic
+- Use background tasks for long-running ML operations
+- Implement health check endpoints
+- Use proper error handling with HTTPException
+
+### API Endpoints Structure
+```
+/api/
+  /games/          # Game data and predictions
+  /teams/          # Team statistics
+  /players/        # Player statistics
+  /odds/           # Betting odds integration
+  /predictions/    # ML model predictions
+  /bets/           # User betting history
+  /analytics/      # Performance analytics
+```
+
+## Database Schema Design
+
+### Core Tables
+- `games`: Historical NBA games with scores, dates, teams
+- `teams`: Team information and metadata
+- `players`: Player statistics and career data
+- `betting_odds`: Historical and current betting lines
+- `predictions`: ML model predictions with confidence scores
+- `user_bets`: User betting history and performance
+- `model_performance`: Backtesting results and model metrics
+
+### Key Relationships
+- Games belong to teams (home/away)
+- Players belong to teams
+- Betting odds reference games
+- Predictions reference games and models
+- User bets reference predictions and games
+
+## Error Handling
+
+### Frontend Error Handling
+- Use React Error Boundaries for component-level errors
+- Implement global error handling with React Query
+- Show user-friendly error messages
+- Log errors to external service (Sentry)
+- Implement retry mechanisms for failed requests
+
+### Backend Error Handling
+- Use try-catch blocks for all async operations
+- Implement custom error classes for different error types
+- Return appropriate HTTP status codes
+- Log errors with proper context
+- Implement circuit breaker pattern for external API calls
+
+### ML Service Error Handling
+- Handle model loading failures gracefully
+- Implement fallback predictions for model failures
+- Log prediction errors with input data context
+- Use proper exception handling in data processing
+
+## Testing Strategy
+
+### Unit Testing
+- Test all utility functions and business logic
+- Mock external dependencies (APIs, database)
+- Use Jest for JavaScript/TypeScript tests
+- Use pytest for Python tests
+- Aim for >80% code coverage
+
+### Integration Testing
+- Test API endpoints with real database
+- Test ML model integration
+- Test data pipeline end-to-end
+- Use test database for integration tests
+
+### ML Model Testing
+- Implement walk-forward validation
+- Test model performance on unseen data
+- Validate prediction confidence scores
+- Test model retraining pipeline
+
+## Development Workflow
+
+### Git Workflow
+- Use feature branches for new features
+- Implement proper commit messages following conventional commits
+- Use pull requests for code review
+- Implement pre-commit hooks for code quality
+
+### Environment Management
+- Use environment variables for all configuration
+- Implement proper secrets management
+- Use different configurations for dev/staging/prod
+- Document all required environment variables
+
+### Data Pipeline
+- Implement data validation at each stage
+- Use proper data versioning
+- Implement data quality checks
+- Monitor data freshness and completeness
+
+## ML Development Guidelines
+
+### Model Development
+- Start with simple baseline models (logistic regression)
+- Implement proper cross-validation
+- Use walk-forward validation for time series data
+- Avoid overfitting with proper regularization
+- Target >52.4% accuracy against the spread
+
+### Feature Engineering
+- Create features from historical game data
+- Implement rolling averages and trends
+- Use team and player statistics effectively
+- Handle missing data appropriately
+- Implement feature selection techniques
+
+### Model Evaluation
+- Use proper metrics for betting models (Sharpe ratio, ROI)
+- Implement backtesting with realistic constraints
+- Test model performance across different seasons
+- Validate model stability over time
+
+## Performance Optimization
+
+### Frontend Performance
+- Implement proper code splitting
+- Use React.memo for expensive components
+- Optimize images and assets
+- Implement proper caching strategies
+- Use React Query for efficient data fetching
+
+### Backend Performance
+- Implement proper database indexing
+- Use connection pooling
+- Implement caching for frequently accessed data
+- Optimize API response times
+- Use proper pagination for large datasets
+
+### ML Performance
+- Implement model caching
+- Use batch processing for predictions
+- Optimize feature computation
+- Implement model versioning
+- Use proper resource management
+
+## Security Considerations
+
+### Data Security
+- Encrypt sensitive data at rest
+- Use proper authentication and authorization
+- Implement rate limiting
+- Validate all input data
+- Use HTTPS for all communications
+
+### ML Security
+- Validate model inputs
+- Implement model versioning
+- Monitor model performance for drift
+- Secure model artifacts
+- Implement proper access controls
+
+## Monitoring and Logging
+
+### Application Monitoring
+- Implement health checks for all services
+- Monitor API response times
+- Track error rates and exceptions
+- Monitor database performance
+- Use structured logging
+
+### ML Monitoring
+- Monitor model prediction accuracy
+- Track model performance over time
+- Monitor data quality and drift
+- Implement alerting for model failures
+- Track betting performance metrics
+
+## Documentation Standards
+
+### Code Documentation
+- Use JSDoc for JavaScript/TypeScript functions
+- Use docstrings for Python functions
+- Document all API endpoints
+- Maintain up-to-date README files
+- Document deployment procedures
+
+### ML Documentation
+- Document model architecture and features
+- Maintain model performance reports
+- Document data preprocessing steps
+- Keep model training logs
+- Document model deployment procedures
+
+## Deployment Guidelines
+
+### Next.js Deployment
+- Use Vercel for production deployment
+- Implement proper environment variables
+- Use edge functions where appropriate
+- Implement proper caching strategies
+- Monitor deployment health
+
+### Python ML Service
+- Use Railway or Render for deployment
+- Implement proper containerization
+- Use proper resource allocation
+- Implement health checks
+- Monitor service performance
+
+### Database
+- Use Supabase for PostgreSQL hosting
+- Implement proper backup strategies
+- Monitor database performance
+- Implement proper access controls
+- Use connection pooling
+
+## Data Quality Standards
+
+### Data Validation
+- Implement data quality checks
+- Validate data types and ranges
+- Check for missing or duplicate data
+- Implement data freshness monitoring
+- Use proper data versioning
+
+### Data Processing
+- Implement proper error handling
+- Use data pipelines for processing
+- Implement data quality metrics
+- Monitor data processing performance
+- Implement proper data archiving
+
+## Betting Model Specific Guidelines
+
+### Model Requirements
+- Target >52.4% accuracy against the spread
+- Implement proper confidence scoring
+- Use multiple models for ensemble predictions
+- Implement proper risk management
+- Track betting performance metrics
+
+### Data Requirements
+- Collect 10+ years of historical NBA data
+- Include team statistics, player data, and betting odds
+- Implement real-time odds integration
+- Maintain data quality and completeness
+- Use proper data preprocessing
+
+### Performance Tracking
+- Implement betting performance analytics
+- Track ROI and Sharpe ratio
+- Monitor model performance over time
+- Implement proper backtesting
+- Use walk-forward validation
+
+## File Organization
+
+### Next.js Structure
+```
+/app/
+  /api/           # API routes
+  /components/    # React components
+  /lib/           # Utility functions
+  /types/         # TypeScript types
+  /hooks/         # Custom React hooks
+  /utils/         # Helper functions
+```
+
+### Python ML Service Structure
+```
+/ml-service/
+  /app/
+    /api/         # FastAPI routes
+    /models/      # ML models
+    /data/        # Data processing
+    /features/    # Feature engineering
+    /utils/       # Utility functions
+  /tests/         # Test files
+  /data/          # Data files
+```
+
+### Database Structure
+```
+/prisma/
+  schema.prisma   # Database schema
+  migrations/     # Database migrations
+```
+
+## Best Practices
+
+### General
+- Write clean, readable code
+- Use proper naming conventions
+- Implement proper error handling
+- Use version control effectively
+- Document everything
+
+### ML Specific
+- Start simple, iterate complex
+- Focus on data quality
+- Implement proper validation
+- Avoid overfitting
+- Monitor model performance
+
+### Betting Specific
+- Implement proper risk management
+- Track all betting decisions
+- Use proper position sizing
+- Implement stop-loss strategies
+- Monitor betting performance
+
+## Common Patterns
+
+### Data Fetching
+- Use React Query for all data fetching
+- Implement proper loading states
+- Use optimistic updates where appropriate
+- Implement proper error handling
+- Use proper caching strategies
+
+### State Management
+- Use React Query for server state
+- Use useState/useReducer for local state
+- Implement proper state normalization
+- Use proper state updates
+- Avoid prop drilling
+
+### API Design
+- Use RESTful conventions
+- Implement proper error handling
+- Use consistent response formats
+- Implement proper validation
+- Use proper HTTP status codes
+
+### Database Operations
+- Use Prisma for type-safe operations
+- Implement proper error handling
+- Use transactions for complex operations
+- Implement proper indexing
+- Use proper query optimization
+
+This comprehensive rule set should guide the development of your NBA betting prediction model project, ensuring code quality, proper architecture, and successful implementation of your ML betting system.
