@@ -25,10 +25,15 @@ class TeamImporter:
         teams_created = 0
         teams_skipped = 0
         
-        for _, row in df.iterrows():
+        # Group by team name and get the most recent entry for each team
+        df_sorted = df.sort_values('seasonActiveTill', ascending=False)
+        current_teams = df_sorted.groupby('teamName').first().reset_index()
+        
+        for _, row in current_teams.iterrows():
             try:
                 # Extract team information from your actual CSV format
-                team_name = f"{row.get('teamCity', '').strip()} {row.get('teamName', '').strip()}".strip()
+                # Use only team name without city for consistency
+                team_name = row.get('teamName', '').strip()
                 team_abbrev = row.get('teamAbbrev', '').strip()
                 
                 if not team_name or team_name in existing_names:
@@ -69,36 +74,43 @@ class TeamImporter:
     def _get_team_abbreviation(self, team_name: str) -> str:
         """Get team abbreviation from team name"""
         abbreviations = {
-            'Atlanta Hawks': 'ATL',
-            'Boston Celtics': 'BOS',
-            'Brooklyn Nets': 'BKN',
-            'Charlotte Hornets': 'CHA',
-            'Chicago Bulls': 'CHI',
-            'Cleveland Cavaliers': 'CLE',
-            'Dallas Mavericks': 'DAL',
-            'Denver Nuggets': 'DEN',
-            'Detroit Pistons': 'DET',
-            'Golden State Warriors': 'GSW',
-            'Houston Rockets': 'HOU',
-            'Indiana Pacers': 'IND',
-            'Los Angeles Clippers': 'LAC',
-            'Los Angeles Lakers': 'LAL',
-            'Memphis Grizzlies': 'MEM',
-            'Miami Heat': 'MIA',
-            'Milwaukee Bucks': 'MIL',
-            'Minnesota Timberwolves': 'MIN',
-            'New Orleans Pelicans': 'NOP',
-            'New York Knicks': 'NYK',
-            'Oklahoma City Thunder': 'OKC',
-            'Orlando Magic': 'ORL',
-            'Philadelphia 76ers': 'PHI',
-            'Phoenix Suns': 'PHX',
-            'Portland Trail Blazers': 'POR',
-            'Sacramento Kings': 'SAC',
-            'San Antonio Spurs': 'SAS',
-            'Toronto Raptors': 'TOR',
-            'Utah Jazz': 'UTA',
-            'Washington Wizards': 'WAS'
+            'Hawks': 'ATL',
+            'Celtics': 'BOS',
+            'Nets': 'BKN',
+            'Hornets': 'CHA',
+            'Bulls': 'CHI',
+            'Cavaliers': 'CLE',
+            'Mavericks': 'DAL',
+            'Nuggets': 'DEN',
+            'Pistons': 'DET',
+            'Warriors': 'GSW',
+            'Rockets': 'HOU',
+            'Pacers': 'IND',
+            'Clippers': 'LAC',
+            'Lakers': 'LAL',
+            'Grizzlies': 'MEM',
+            'Heat': 'MIA',
+            'Bucks': 'MIL',
+            'Timberwolves': 'MIN',
+            'Pelicans': 'NOP',
+            'Knicks': 'NYK',
+            'Thunder': 'OKC',
+            'Magic': 'ORL',
+            '76ers': 'PHI',
+            'Suns': 'PHX',
+            'Trail Blazers': 'POR',
+            'Kings': 'SAC',
+            'Spurs': 'SAS',
+            'Raptors': 'TOR',
+            'Jazz': 'UTA',
+            'Wizards': 'WAS',
+            'SuperSonics': 'SEA',
+            'Royals': 'ROC',
+            'Nationals': 'SYR',
+            'Packers': 'CHI',
+            'Zephyrs': 'CHI',
+            'Bullets': 'WAS',
+            'Bobcats': 'CHA'
         }
         return abbreviations.get(team_name, team_name[:3].upper())
     
@@ -120,22 +132,22 @@ class TeamImporter:
     def _get_conference(self, team_name: str) -> str:
         """Get conference for team"""
         eastern_teams = {
-            'Atlanta Hawks', 'Boston Celtics', 'Brooklyn Nets', 'Charlotte Hornets',
-            'Chicago Bulls', 'Cleveland Cavaliers', 'Detroit Pistons', 'Indiana Pacers',
-            'Miami Heat', 'Milwaukee Bucks', 'New York Knicks', 'Orlando Magic',
-            'Philadelphia 76ers', 'Toronto Raptors', 'Washington Wizards'
+            'Hawks', 'Celtics', 'Nets', 'Hornets', 'Bulls', 'Cavaliers', 
+            'Pistons', 'Pacers', 'Heat', 'Bucks', 'Knicks', 'Magic',
+            '76ers', 'Raptors', 'Wizards', 'SuperSonics', 'Royals', 
+            'Nationals', 'Packers', 'Zephyrs', 'Bullets', 'Bobcats'
         }
         return 'Eastern' if team_name in eastern_teams else 'Western'
     
     def _get_division(self, team_name: str) -> str:
         """Get division for team"""
         divisions = {
-            'Atlantic': {'Boston Celtics', 'Brooklyn Nets', 'New York Knicks', 'Philadelphia 76ers', 'Toronto Raptors'},
-            'Central': {'Chicago Bulls', 'Cleveland Cavaliers', 'Detroit Pistons', 'Indiana Pacers', 'Milwaukee Bucks'},
-            'Southeast': {'Atlanta Hawks', 'Charlotte Hornets', 'Miami Heat', 'Orlando Magic', 'Washington Wizards'},
-            'Northwest': {'Denver Nuggets', 'Minnesota Timberwolves', 'Oklahoma City Thunder', 'Portland Trail Blazers', 'Utah Jazz'},
-            'Pacific': {'Golden State Warriors', 'Los Angeles Clippers', 'Los Angeles Lakers', 'Phoenix Suns', 'Sacramento Kings'},
-            'Southwest': {'Dallas Mavericks', 'Houston Rockets', 'Memphis Grizzlies', 'New Orleans Pelicans', 'San Antonio Spurs'}
+            'Atlantic': {'Celtics', 'Nets', 'Knicks', '76ers', 'Raptors'},
+            'Central': {'Bulls', 'Cavaliers', 'Pistons', 'Pacers', 'Bucks'},
+            'Southeast': {'Hawks', 'Hornets', 'Heat', 'Magic', 'Wizards'},
+            'Northwest': {'Nuggets', 'Timberwolves', 'Thunder', 'Trail Blazers', 'Jazz'},
+            'Pacific': {'Warriors', 'Clippers', 'Lakers', 'Suns', 'Kings'},
+            'Southwest': {'Mavericks', 'Rockets', 'Grizzlies', 'Pelicans', 'Spurs'}
         }
         
         for division, teams in divisions.items():

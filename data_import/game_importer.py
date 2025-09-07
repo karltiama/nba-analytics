@@ -8,9 +8,9 @@ from .database import DatabaseManager
 
 # Import team mapping
 try:
-    from team_mapping import TEAM_MAPPING
+    from short_team_mapping import SHORT_TEAM_MAPPING
 except ImportError:
-    TEAM_MAPPING = {}
+    SHORT_TEAM_MAPPING = {}
 
 class GameImporter:
     def __init__(self, db_manager: DatabaseManager, team_mapping: Dict[str, str]):
@@ -66,15 +66,16 @@ class GameImporter:
         """Process a single game row from CSV"""
         try:
             # Extract basic game information from your actual CSV format
-            home_team = f"{str(row.get('hometeamCity', '') or '').strip()} {str(row.get('hometeamName', '') or '').strip()}".strip()
-            away_team = f"{str(row.get('awayteamCity', '') or '').strip()} {str(row.get('awayteamName', '') or '').strip()}".strip()
+            # Use only team names without cities to match our database format
+            home_team = str(row.get('hometeamName', '') or '').strip()
+            away_team = str(row.get('awayteamName', '') or '').strip()
             
             if not home_team or not away_team:
                 return None
             
             # Get team IDs from mapping (try both local and global mapping)
-            home_team_id = self.team_mapping.get(home_team) or TEAM_MAPPING.get(home_team)
-            away_team_id = self.team_mapping.get(away_team) or TEAM_MAPPING.get(away_team)
+            home_team_id = self.team_mapping.get(home_team) or SHORT_TEAM_MAPPING.get(home_team)
+            away_team_id = self.team_mapping.get(away_team) or SHORT_TEAM_MAPPING.get(away_team)
             
             if not home_team_id or not away_team_id:
                 print(f"⚠️ Team not found: {home_team} or {away_team}")

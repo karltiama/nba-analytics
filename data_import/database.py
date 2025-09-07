@@ -66,7 +66,14 @@ class DatabaseManager:
         """Create a new team"""
         query = """
             INSERT INTO teams (id, name, abbreviation, city, conference, division, "logoUrl", "createdAt", "updatedAt")
-            VALUES (gen_random_uuid(), %(name)s, %(abbreviation)s, %(city)s, %(conference)s, %(division)s, %(logoUrl)s, NOW(), NOW())
+            VALUES (%(id)s, %(name)s, %(abbreviation)s, %(city)s, %(conference)s, %(division)s, %(logoUrl)s, NOW(), NOW())
+            ON CONFLICT (id) DO UPDATE SET
+                name = EXCLUDED.name,
+                abbreviation = EXCLUDED.abbreviation,
+                city = EXCLUDED.city,
+                conference = EXCLUDED.conference,
+                division = EXCLUDED.division,
+                "updatedAt" = NOW()
             RETURNING *
         """
         self.cursor.execute(query, team_data)
@@ -101,7 +108,7 @@ class DatabaseManager:
         return dict(result)
     
     async def create_team_stats(self, stats_data: dict) -> dict:
-        """Create team statistics"""
+        """Create team statistics with duplicate handling"""
         query = """
             INSERT INTO team_stats (id, "teamId", season, "gamesPlayed", wins, losses, "pointsPerGame",
                                    "pointsAllowed", "fieldGoalPct", "threePointPct", "freeThrowPct",
@@ -109,6 +116,21 @@ class DatabaseManager:
             VALUES (gen_random_uuid(), %(teamId)s, %(season)s, %(gamesPlayed)s, %(wins)s, %(losses)s, %(pointsPerGame)s,
                    %(pointsAllowed)s, %(fieldGoalPct)s, %(threePointPct)s, %(freeThrowPct)s,
                    %(rebounds)s, %(assists)s, %(turnovers)s, %(steals)s, %(blocks)s, NOW(), NOW())
+            ON CONFLICT ("teamId", season) DO UPDATE SET
+                "gamesPlayed" = EXCLUDED."gamesPlayed",
+                wins = EXCLUDED.wins,
+                losses = EXCLUDED.losses,
+                "pointsPerGame" = EXCLUDED."pointsPerGame",
+                "pointsAllowed" = EXCLUDED."pointsAllowed",
+                "fieldGoalPct" = EXCLUDED."fieldGoalPct",
+                "threePointPct" = EXCLUDED."threePointPct",
+                "freeThrowPct" = EXCLUDED."freeThrowPct",
+                rebounds = EXCLUDED.rebounds,
+                assists = EXCLUDED.assists,
+                turnovers = EXCLUDED.turnovers,
+                steals = EXCLUDED.steals,
+                blocks = EXCLUDED.blocks,
+                "updatedAt" = NOW()
             RETURNING *
         """
         self.cursor.execute(query, stats_data)
@@ -137,6 +159,23 @@ class DatabaseManager:
         self.cursor.execute("SELECT * FROM teams")
         results = self.cursor.fetchall()
         return [dict(row) for row in results]
+    
+    async def clear_teams(self):
+        """Clear all teams from the database"""
+        try:
+            # Delete in order to respect foreign key constraints
+            # First delete dependent tables
+            self.cursor.execute("DELETE FROM team_stats")
+            self.cursor.execute("DELETE FROM player_stats")
+            self.cursor.execute("DELETE FROM players")
+            self.cursor.execute("DELETE FROM games")
+            self.cursor.execute("DELETE FROM teams")
+            self.connection.commit()
+            print("✅ Cleared all teams and related data from database")
+        except Exception as e:
+            self.connection.rollback()
+            print(f"❌ Error clearing teams: {e}")
+            raise
     
     async def get_existing_players(self) -> list:
         """Get all existing players"""
