@@ -141,12 +141,25 @@ class DatabaseManager:
     async def create_player_stats(self, stats_data: dict) -> dict:
         """Create player statistics"""
         query = """
-            INSERT INTO player_stats (id, "playerId", season, "gamesPlayed", "minutesPerGame", "pointsPerGame",
+            INSERT INTO player_stats (id, "playerId", season, "seasonType", "gamesPlayed", "minutesPerGame", "pointsPerGame",
                                      rebounds, assists, steals, blocks, turnovers, "fieldGoalPct",
                                      "threePointPct", "freeThrowPct", "createdAt", "updatedAt")
-            VALUES (gen_random_uuid(), %(playerId)s, %(season)s, %(gamesPlayed)s, %(minutesPerGame)s, %(pointsPerGame)s,
+            VALUES (gen_random_uuid(), %(playerId)s, %(season)s, %(seasonType)s, %(gamesPlayed)s, %(minutesPerGame)s, %(pointsPerGame)s,
                    %(rebounds)s, %(assists)s, %(steals)s, %(blocks)s, %(turnovers)s, %(fieldGoalPct)s,
                    %(threePointPct)s, %(freeThrowPct)s, NOW(), NOW())
+            ON CONFLICT ("playerId", season, "seasonType") DO UPDATE SET
+                "gamesPlayed" = EXCLUDED."gamesPlayed",
+                "minutesPerGame" = EXCLUDED."minutesPerGame",
+                "pointsPerGame" = EXCLUDED."pointsPerGame",
+                rebounds = EXCLUDED.rebounds,
+                assists = EXCLUDED.assists,
+                steals = EXCLUDED.steals,
+                blocks = EXCLUDED.blocks,
+                turnovers = EXCLUDED.turnovers,
+                "fieldGoalPct" = EXCLUDED."fieldGoalPct",
+                "threePointPct" = EXCLUDED."threePointPct",
+                "freeThrowPct" = EXCLUDED."freeThrowPct",
+                "updatedAt" = NOW()
             RETURNING *
         """
         self.cursor.execute(query, stats_data)
@@ -249,3 +262,17 @@ class DatabaseManager:
         await self.connection.commit()
         
         return len(values_list)
+    
+    async def execute_query(self, query: str, params: list = None) -> list:
+        """Execute a custom query and return results"""
+        try:
+            if params:
+                self.cursor.execute(query, params)
+            else:
+                self.cursor.execute(query)
+            
+            results = self.cursor.fetchall()
+            return [dict(row) for row in results]
+        except Exception as e:
+            print(f"❌ Error executing query: {e}")
+            return []

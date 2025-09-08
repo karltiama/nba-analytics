@@ -28,8 +28,17 @@ class StatsImporter:
         print(f"📊 Found {len(df)} team stat records")
         
         # Group by team and season (extract season from gameDate)
-        df['season'] = pd.to_datetime(df['gameDate']).dt.year
-        df['season'] = df['season'].astype(str) + '-' + (df['season'] + 1).astype(str).str[2:]
+        # For playoffs, use the previous season since playoffs happen in April-June
+        df['gameDate'] = pd.to_datetime(df['gameDate'])
+        df['year'] = df['gameDate'].dt.year
+        df['month'] = df['gameDate'].dt.month
+        
+        # For playoffs (April-June), use the previous year's season
+        # For regular season and preseason (October-March), use the current year's season
+        df['season_year'] = df['year']
+        df.loc[(df['gameType'] == 'Playoffs') & (df['month'] >= 4) & (df['month'] <= 6), 'season_year'] = df['year'] - 1
+        
+        df['season'] = df['season_year'].astype(str) + '-' + (df['season_year'] + 1).astype(str).str[2:]
         
         grouped = df.groupby(['teamName', 'season'])
         
@@ -70,13 +79,22 @@ class StatsImporter:
         df = pd.read_csv(csv_path)
         print(f"📊 Found {len(df)} player stat records")
         
-        # Group by player and season (extract season from gameDate)
-        df['season'] = pd.to_datetime(df['gameDate']).dt.year
-        df['season'] = df['season'].astype(str) + '-' + (df['season'] + 1).astype(str).str[2:]
+        # Group by player, season, and gameType (extract season from gameDate)
+        # For playoffs, use the previous season since playoffs happen in April-June
+        df['gameDate'] = pd.to_datetime(df['gameDate'])
+        df['year'] = df['gameDate'].dt.year
+        df['month'] = df['gameDate'].dt.month
         
-        grouped = df.groupby(['firstName', 'lastName', 'season'])
+        # For playoffs (April-June), use the previous year's season
+        # For regular season and preseason (October-March), use the current year's season
+        df['season_year'] = df['year']
+        df.loc[(df['gameType'] == 'Playoffs') & (df['month'] >= 4) & (df['month'] <= 6), 'season_year'] = df['year'] - 1
         
-        for (first_name, last_name, season), group in grouped:
+        df['season'] = df['season_year'].astype(str) + '-' + (df['season_year'] + 1).astype(str).str[2:]
+        
+        grouped = df.groupby(['firstName', 'lastName', 'season', 'gameType'])
+        
+        for (first_name, last_name, season, game_type), group in grouped:
             try:
                 # Get player ID
                 player_name = f"{first_name} {last_name}"
@@ -85,8 +103,8 @@ class StatsImporter:
                     print(f"⚠️ Player not found: {player_name}")
                     continue
                 
-                # Calculate aggregated stats for the season
-                stats_data = await self._process_player_stats_group(group, player_id, season)
+                # Calculate aggregated stats for the season and game type
+                stats_data = await self._process_player_stats_group(group, player_id, season, game_type)
                 if not stats_data:
                     continue
                 
@@ -98,7 +116,7 @@ class StatsImporter:
                     print(f"📊 Processed {self.stats_created} player stat records...")
                 
             except Exception as e:
-                print(f"❌ Error creating player stats for {player_name} {season}: {e}")
+                print(f"❌ Error creating player stats for {player_name} {season} {game_type}: {e}")
                 self.stats_skipped += 1
         
         print(f"📊 Player stats import complete: {self.stats_created} created, {self.stats_skipped} skipped")
@@ -149,8 +167,8 @@ class StatsImporter:
             print(f"❌ Error processing team stats: {e}")
             return None
     
-    async def _process_player_stats_group(self, group: pd.DataFrame, player_id: str, season: str) -> Optional[Dict]:
-        """Process player stats for a season"""
+    async def _process_player_stats_group(self, group: pd.DataFrame, player_id: str, season: str, game_type: str) -> Optional[Dict]:
+        """Process player stats for a season and game type"""
         try:
             # Calculate basic stats
             games_played = len(group)
@@ -172,6 +190,7 @@ class StatsImporter:
             return {
                 'playerId': player_id,
                 'season': season,
+                'seasonType': game_type,
                 'gamesPlayed': games_played,
                 'minutesPerGame': minutes_per_game,
                 'pointsPerGame': points_per_game,

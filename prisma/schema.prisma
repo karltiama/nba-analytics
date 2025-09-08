@@ -176,6 +176,7 @@ model PlayerStats {
   playerId        String
   gameId          String?
   season          String
+  seasonType      String   // "Regular Season", "Playoffs", "Preseason"
   gamesPlayed     Int      @default(0)
   minutesPerGame  Float    @default(0)
   pointsPerGame   Float    @default(0)
@@ -193,6 +194,7 @@ model PlayerStats {
   // Relations
   player          Player   @relation(fields: [playerId], references: [id])
 
+  @@unique([playerId, season, seasonType])
   @@map("player_stats")
 }
 
