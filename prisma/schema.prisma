@@ -1,6 +1,3 @@
-// NBA Betting Prediction Model - Prisma Schema
-// This schema defines the database structure for our NBA betting prediction system
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,211 +7,239 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Teams table - stores NBA team information
 model Team {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  abbreviation String  @unique
-  city        String
-  conference  String   // "Eastern" or "Western"
-  division    String   // e.g., "Atlantic", "Central", "Southeast"
-  logoUrl     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  homeGames   Game[] @relation("HomeTeam")
-  awayGames   Game[] @relation("AwayTeam")
-  players     Player[]
-  teamStats   TeamStats[]
+  id           String      @id @default(cuid())
+  name         String      @unique
+  abbreviation String      @unique
+  city         String
+  conference   String
+  division     String
+  logoUrl      String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  awayGames    Game[]      @relation("AwayTeam")
+  homeGames    Game[]      @relation("HomeTeam")
+  players      Player[]
+  teamStats    TeamStats[]
 
   @@map("teams")
 }
 
-// Players table - stores NBA player information
 model Player {
-  id          String   @id @default(cuid())
-  name        String
-  position    String   // "PG", "SG", "SF", "PF", "C"
-  height      Int?     // in inches
-  weight      Int?     // in pounds
+  id           String        @id @default(cuid())
+  name         String
+  position     String
+  height       Int?
+  weight       Int?
   jerseyNumber Int?
-  teamId      String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  team        Team?    @relation(fields: [teamId], references: [id])
-  playerStats PlayerStats[]
+  teamId       String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  playerStats  PlayerStats[]
+  team         Team?         @relation(fields: [teamId], references: [id])
 
   @@map("players")
 }
 
-// Games table - stores historical NBA games
 model Game {
-  id          String    @id @default(cuid())
+  id          String        @id @default(cuid())
   gameDate    DateTime
-  season      String    // e.g., "2023-24"
-  seasonType  String    // "Regular Season", "Playoffs", "Preseason"
+  season      String
+  seasonType  String
   homeTeamId  String
   awayTeamId  String
   homeScore   Int?
   awayScore   Int?
-  status      String    // "Scheduled", "In Progress", "Final", "Postponed"
+  status      String
   attendance  Int?
   venue       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relations
-  homeTeam    Team      @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  awayTeam    Team      @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  // Betting odds fields
+  whosFavored String?
+  spread      Float?
+  total       Float?
+  moneylineHome Int?
+  moneylineAway Int?
+  h2Spread    Float?
+  h2Total     Float?
+  idSpread    Int?          // 1=favorite covered, 0=underdog, 2=push
+  idTotal     Int?          // 1=over, 0=under, 2=push
+  regular     Boolean?
+  playoffs    Boolean?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   bettingOdds BettingOdds[]
+  awayTeam    Team          @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  homeTeam    Team          @relation("HomeTeam", fields: [homeTeamId], references: [id])
   predictions Prediction[]
   userBets    UserBet[]
 
   @@map("games")
 }
 
-// Betting Odds table - stores historical and current betting lines
 model BettingOdds {
-  id            String   @id @default(cuid())
-  gameId        String
-  sportsbook    String   // e.g., "DraftKings", "FanDuel", "BetMGM"
-  lineType      String   // "spread", "total", "moneyline"
-  homeLine      Float?   // Home team line
-  awayLine      Float?   // Away team line
-  homeOdds      Int?     // Home team odds (e.g., -110)
-  awayOdds      Int?     // Away team odds (e.g., -110)
-  totalLine     Float?   // Total points line
-  overOdds      Int?     // Over odds
-  underOdds     Int?     // Under odds
-  timestamp     DateTime @default(now())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  game          Game     @relation(fields: [gameId], references: [id])
+  id         String   @id @default(cuid())
+  gameId     String
+  sportsbook String
+  lineType   String
+  homeLine   Float?
+  awayLine   Float?
+  homeOdds   Int?
+  awayOdds   Int?
+  totalLine  Float?
+  overOdds   Int?
+  underOdds  Int?
+  timestamp  DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  game       Game     @relation(fields: [gameId], references: [id])
 
   @@map("betting_odds")
 }
 
-// Predictions table - stores ML model predictions
 model Prediction {
-  id                String   @id @default(cuid())
-  gameId            String
-  modelName         String   // e.g., "logistic_regression", "xgboost", "ensemble"
-  modelVersion      String   // e.g., "v1.0.0"
-  predictionType    String   // "spread", "total", "moneyline"
-  predictedValue    Float    // Predicted spread, total, etc.
-  confidence        Float    // Confidence score 0-1
-  actualValue       Float?   // Actual result (filled after game)
-  isCorrect         Boolean? // Whether prediction was correct
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Relations
-  game              Game     @relation(fields: [gameId], references: [id])
-  userBets          UserBet[]
+  id             String    @id @default(cuid())
+  gameId         String
+  modelName      String
+  modelVersion   String
+  predictionType String
+  predictedValue Float
+  confidence     Float
+  actualValue    Float?
+  isCorrect      Boolean?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  game           Game      @relation(fields: [gameId], references: [id])
+  userBets       UserBet[]
 
   @@map("predictions")
 }
 
-// User Bets table - stores user betting history
 model UserBet {
-  id            String   @id @default(cuid())
-  gameId        String
-  predictionId  String?
-  betType       String   // "spread", "total", "moneyline"
-  betAmount     Float    // Amount wagered
-  odds          Int      // Odds at time of bet
-  potentialWin  Float    // Potential winnings
-  actualWin     Float?   // Actual winnings (filled after game)
-  status        String   // "pending", "won", "lost", "pushed"
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  game          Game     @relation(fields: [gameId], references: [id])
-  prediction    Prediction? @relation(fields: [predictionId], references: [id])
+  id           String      @id @default(cuid())
+  gameId       String
+  predictionId String?
+  betType      String
+  betAmount    Float
+  odds         Int
+  potentialWin Float
+  actualWin    Float?
+  status       String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  game         Game        @relation(fields: [gameId], references: [id])
+  prediction   Prediction? @relation(fields: [predictionId], references: [id])
 
   @@map("user_bets")
 }
 
-// Team Stats table - stores team statistics
 model TeamStats {
-  id              String   @id @default(cuid())
-  teamId          String
-  season          String
-  gamesPlayed     Int      @default(0)
-  wins            Int      @default(0)
-  losses          Int      @default(0)
-  pointsPerGame   Float    @default(0)
-  pointsAllowed   Float    @default(0)
-  fieldGoalPct    Float    @default(0)
-  threePointPct   Float    @default(0)
-  freeThrowPct    Float    @default(0)
-  rebounds        Float    @default(0)
-  assists         Float    @default(0)
-  turnovers       Float    @default(0)
-  steals          Float    @default(0)
-  blocks          Float    @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relations
-  team            Team     @relation(fields: [teamId], references: [id])
+  id            String   @id @default(cuid())
+  teamId        String
+  season        String
+  gamesPlayed   Int      @default(0)
+  wins          Int      @default(0)
+  losses        Int      @default(0)
+  pointsPerGame Float    @default(0)
+  pointsAllowed Float    @default(0)
+  fieldGoalPct  Float    @default(0)
+  threePointPct Float    @default(0)
+  freeThrowPct  Float    @default(0)
+  rebounds      Float    @default(0)
+  assists       Float    @default(0)
+  turnovers     Float    @default(0)
+  steals        Float    @default(0)
+  blocks        Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  team          Team     @relation(fields: [teamId], references: [id])
 
   @@unique([teamId, season])
   @@map("team_stats")
 }
 
-// Player Stats table - stores player statistics
 model PlayerStats {
-  id              String   @id @default(cuid())
-  playerId        String
-  gameId          String?
-  season          String
-  seasonType      String   // "Regular Season", "Playoffs", "Preseason"
-  gamesPlayed     Int      @default(0)
-  minutesPerGame  Float    @default(0)
-  pointsPerGame   Float    @default(0)
-  rebounds        Float    @default(0)
-  assists         Float    @default(0)
-  steals          Float    @default(0)
-  blocks          Float    @default(0)
-  turnovers       Float    @default(0)
-  fieldGoalPct    Float    @default(0)
-  threePointPct   Float    @default(0)
-  freeThrowPct    Float    @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relations
-  player          Player   @relation(fields: [playerId], references: [id])
+  id             String   @id @default(cuid())
+  playerId       String
+  gameId         String?
+  season         String
+  gamesPlayed    Int      @default(0)
+  minutesPerGame Float    @default(0)
+  pointsPerGame  Float    @default(0)
+  rebounds       Float    @default(0)
+  assists        Float    @default(0)
+  steals         Float    @default(0)
+  blocks         Float    @default(0)
+  turnovers      Float    @default(0)
+  fieldGoalPct   Float    @default(0)
+  threePointPct  Float    @default(0)
+  freeThrowPct   Float    @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  seasonType     String
+  player         Player   @relation(fields: [playerId], references: [id])
 
   @@unique([playerId, season, seasonType])
   @@map("player_stats")
 }
 
-// Model Performance table - stores ML model performance metrics
+model PlayerGameStats {
+  id                    String   @id @default(cuid())
+  personId              String   // Raw personId from CSV
+  firstName             String
+  lastName              String
+  gameId                String
+  gameDate              DateTime
+  teamCity              String
+  teamName              String
+  opponentCity          String
+  opponentName          String
+  gameType              String
+  win                   Boolean
+  home                  Boolean
+  minutesPlayed         Float    @default(0)
+  points                Float    @default(0)
+  assists               Float    @default(0)
+  blocks                Float    @default(0)
+  steals                Float    @default(0)
+  fieldGoalsAttempted   Float    @default(0)
+  fieldGoalsMade        Float    @default(0)
+  fieldGoalsPercentage  Float    @default(0)
+  threePointersAttempted Float   @default(0)
+  threePointersMade     Float    @default(0)
+  threePointersPercentage Float  @default(0)
+  freeThrowsAttempted   Float    @default(0)
+  freeThrowsMade        Float    @default(0)
+  freeThrowsPercentage  Float    @default(0)
+  reboundsDefensive     Float    @default(0)
+  reboundsOffensive     Float    @default(0)
+  reboundsTotal         Float    @default(0)
+  foulsPersonal         Float    @default(0)
+  turnovers             Float    @default(0)
+  plusMinusPoints       Float    @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([personId, gameId])
+  @@map("player_game_stats")
+}
+
 model ModelPerformance {
-  id                String   @id @default(cuid())
-  modelName         String
-  modelVersion      String
-  season            String
-  totalPredictions  Int      @default(0)
-  correctPredictions Int     @default(0)
-  accuracy          Float    @default(0)
-  roi               Float    @default(0)
-  sharpeRatio       Float    @default(0)
-  totalBets         Int      @default(0)
-  winningBets       Int      @default(0)
-  losingBets        Int      @default(0)
-  pushedBets        Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  modelName          String
+  modelVersion       String
+  season             String
+  totalPredictions   Int      @default(0)
+  correctPredictions Int      @default(0)
+  accuracy           Float    @default(0)
+  roi                Float    @default(0)
+  sharpeRatio        Float    @default(0)
+  totalBets          Int      @default(0)
+  winningBets        Int      @default(0)
+  losingBets         Int      @default(0)
+  pushedBets         Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@unique([modelName, modelVersion, season])
   @@map("model_performance")

@@ -66,9 +66,8 @@ class DatabaseManager:
         """Create a new team"""
         query = """
             INSERT INTO teams (id, name, abbreviation, city, conference, division, "logoUrl", "createdAt", "updatedAt")
-            VALUES (%(id)s, %(name)s, %(abbreviation)s, %(city)s, %(conference)s, %(division)s, %(logoUrl)s, NOW(), NOW())
-            ON CONFLICT (id) DO UPDATE SET
-                name = EXCLUDED.name,
+            VALUES (gen_random_uuid(), %(name)s, %(abbreviation)s, %(city)s, %(conference)s, %(division)s, %(logoUrl)s, NOW(), NOW())
+            ON CONFLICT (name) DO UPDATE SET
                 abbreviation = EXCLUDED.abbreviation,
                 city = EXCLUDED.city,
                 conference = EXCLUDED.conference,
@@ -276,3 +275,29 @@ class DatabaseManager:
         except Exception as e:
             print(f"❌ Error executing query: {e}")
             return []
+    
+    async def get_game_by_teams_and_date(self, home_team_id: str, away_team_id: str, game_date) -> Optional[dict]:
+        """Get game by teams and date"""
+        self.cursor.execute(
+            "SELECT * FROM games WHERE \"homeTeamId\" = %s AND \"awayTeamId\" = %s AND \"gameDate\" = %s",
+            (home_team_id, away_team_id, game_date)
+        )
+        result = self.cursor.fetchone()
+        return dict(result) if result else None
+    
+    async def create_individual_player_stat(self, stats_data: dict) -> dict:
+        """Create individual player statistics record"""
+        query = """
+            INSERT INTO player_stats (id, "playerId", "gameId", season, "seasonType", "gamesPlayed", 
+                                     "minutesPerGame", "pointsPerGame", rebounds, assists, steals, blocks, 
+                                     turnovers, "fieldGoalPct", "threePointPct", "freeThrowPct", 
+                                     "createdAt", "updatedAt")
+            VALUES (gen_random_uuid(), %(playerId)s, %(gameId)s, %(season)s, %(seasonType)s, %(gamesPlayed)s,
+                   %(minutesPerGame)s, %(pointsPerGame)s, %(rebounds)s, %(assists)s, %(steals)s, %(blocks)s,
+                   %(turnovers)s, %(fieldGoalPct)s, %(threePointPct)s, %(freeThrowPct)s, NOW(), NOW())
+            RETURNING *
+        """
+        self.cursor.execute(query, stats_data)
+        result = self.cursor.fetchone()
+        self.connection.commit()
+        return dict(result)
