@@ -1,0 +1,43 @@
+{
+  "model_name": "Gradient Boosting",
+  "best_threshold": 0.5,
+  "feature_columns": [
+    "spread",
+    "total",
+    "home_win_rate",
+    "home_points_for",
+    "home_points_against",
+    "home_point_differential",
+    "home_recent_form_5",
+    "home_rest_days",
+    "away_win_rate",
+    "away_points_for",
+    "away_points_against",
+    "away_point_differential",
+    "away_recent_form_5",
+    "away_rest_days",
+    "h2h_games",
+    "h2h_home_wins",
+    "h2h_away_wins",
+    "win_rate_difference",
+    "point_differential_difference",
+    "recent_form_difference",
+    "rest_days_difference",
+    "season_progress",
+    "is_playoffs",
+    "is_regular_season",
+    "spread_magnitude",
+    "total_magnitude",
+    "is_home_favorite",
+    "is_away_favorite",
+    "favorite_spread"
+  ],
+  "performance": {
+    "roi": 56.64335664335665,
+    "win_rate": 0.5384615384615384,
+    "total_bets": 13,
+    "profitable_bets": 7,
+    "avg_confidence": 0.9999999870550338,
+    "sharpe_ratio": 0.0293911142784937
+  }
+}

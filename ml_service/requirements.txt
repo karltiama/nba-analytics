@@ -1,0 +1,11 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+pandas==2.3.2
+numpy==2.3.2
+scikit-learn==1.7.1
+xgboost==3.0.5
+joblib==1.5.2
+psycopg2-binary==2.9.10
+sqlalchemy==2.0.43
+python-dotenv==1.1.1
+pydantic==2.5.0
