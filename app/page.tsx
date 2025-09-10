@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 export default function Home() {
@@ -13,7 +14,7 @@ export default function Home() {
             powered by machine learning for betting predictions.
           </p>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {/* Data Tables Card */}
             <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow">
               <div className="text-4xl mb-4">📊</div>
@@ -68,6 +69,22 @@ export default function Home() {
                 className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
               >
                 View Player Stats
+              </Link>
+            </div>
+
+            {/* Backtest Card */}
+            <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-4">🎯</div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Model Backtest</h2>
+              <p className="text-gray-600 mb-6">
+                Test your NBA betting model on historical data to validate performance 
+                and analyze ROI across different seasons.
+              </p>
+              <Link 
+                href="/backtest"
+                className="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                Run Backtest
               </Link>
             </div>
           </div>

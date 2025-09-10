@@ -21,7 +21,7 @@ def get_database_connection():
     
     return create_engine(database_url)
 
-def create_ml_features_sample(sample_size=100):
+def create_ml_features_sample(sample_size=1000):
     """Create ML features for a sample of NBA games"""
     print(f"🔧 Creating ML features for {sample_size} sample games...\n")
     
@@ -29,7 +29,7 @@ def create_ml_features_sample(sample_size=100):
         # Connect to database
         engine = get_database_connection()
         
-        # 1. Get sample of games with betting data
+        # 1. Get games with betting data (prioritize 2024-25 season, then others)
         query = f"""
         SELECT 
             g.id as game_id,
@@ -55,7 +55,20 @@ def create_ml_features_sample(sample_size=100):
         WHERE g.spread IS NOT NULL 
         AND g."homeScore" IS NOT NULL 
         AND g."awayScore" IS NOT NULL
-        ORDER BY g."gameDate" DESC
+        AND g.season IN ('2023-24', '2022-23', '2021-22', '2020-21', '2019-20', '2018-19', '2016-17', '2015-16')
+        ORDER BY 
+            CASE 
+                WHEN g.season = '2023-24' THEN 1
+                WHEN g.season = '2022-23' THEN 2
+                WHEN g.season = '2021-22' THEN 3
+                WHEN g.season = '2020-21' THEN 4
+                WHEN g.season = '2019-20' THEN 5
+                WHEN g.season = '2018-19' THEN 6
+                WHEN g.season = '2016-17' THEN 7
+                WHEN g.season = '2015-16' THEN 8
+                ELSE 9
+            END,
+            g."gameDate" DESC
         LIMIT {sample_size}
         """
         
@@ -306,5 +319,5 @@ def display_feature_summary(features_df):
     print(f"  Rest Days Diff: {features_df['rest_days_difference'].mean():.1f} ± {features_df['rest_days_difference'].std():.1f}")
 
 if __name__ == "__main__":
-    # Run with sample size of 50 games
-    create_ml_features_sample(sample_size=50)
+    # Run with sample size of 1000 games (whole season + historical data)
+    create_ml_features_sample(sample_size=1000)
