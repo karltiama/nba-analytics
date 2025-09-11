@@ -75,9 +75,9 @@ const GamesTable = () => {
         const colors = {
           'Regular Season': 'bg-blue-100 text-blue-800',
           'Playoffs': 'bg-purple-100 text-purple-800',
-          'Preseason': 'bg-gray-100 text-gray-800'
+          'Preseason': 'bg-gray-100 text-black'
         };
-        const colorClass = colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+        const colorClass = colors[type as keyof typeof colors] || 'bg-gray-100 text-black';
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>
             {type}
@@ -94,7 +94,7 @@ const GamesTable = () => {
         return (
           <div className="flex items-center gap-2">
             <span className="font-medium">{team.abbreviation}</span>
-            <span className="text-gray-500 text-sm">{team.city}</span>
+            <span className="text-black text-sm">{team.city}</span>
           </div>
         );
       }
@@ -108,7 +108,7 @@ const GamesTable = () => {
         return score !== null ? (
           <span className="font-mono font-semibold">{score}</span>
         ) : (
-          <span className="text-gray-400">-</span>
+          <span className="text-black">-</span>
         );
       }
     },
@@ -121,7 +121,7 @@ const GamesTable = () => {
         return (
           <div className="flex items-center gap-2">
             <span className="font-medium">{team.abbreviation}</span>
-            <span className="text-gray-500 text-sm">{team.city}</span>
+            <span className="text-black text-sm">{team.city}</span>
           </div>
         );
       }
@@ -135,7 +135,7 @@ const GamesTable = () => {
         return score !== null ? (
           <span className="font-mono font-semibold">{score}</span>
         ) : (
-          <span className="text-gray-400">-</span>
+          <span className="text-black">-</span>
         );
       }
     },
@@ -150,7 +150,7 @@ const GamesTable = () => {
           'Scheduled': 'bg-yellow-100 text-yellow-800',
           'In Progress': 'bg-blue-100 text-blue-800'
         };
-        const colorClass = colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+        const colorClass = colors[status as keyof typeof colors] || 'bg-gray-100 text-black';
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>
             {status}

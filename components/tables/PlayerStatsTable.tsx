@@ -14,7 +14,7 @@ export default function PlayerStatsTable({ data, height = '500px' }: PlayerStats
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 bg-gray-800 rounded-lg">
-        <div className="text-center text-gray-400">
+        <div className="text-center text-black">
           <div className="text-4xl mb-4">📊</div>
           <h3 className="text-lg font-semibold mb-2">No Player Data Available</h3>
           <p className="text-sm">Player statistics need to be imported from the CSV files.</p>

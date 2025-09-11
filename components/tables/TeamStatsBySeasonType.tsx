@@ -80,7 +80,7 @@ const TeamStatsBySeasonType = ({
         return (
           <div className="flex flex-col">
             <span className="font-semibold">{team.abbreviation}</span>
-            <span className="text-xs text-gray-500">{team.city}</span>
+            <span className="text-xs text-black">{team.city}</span>
           </div>
         );
       }
@@ -133,7 +133,7 @@ const TeamStatsBySeasonType = ({
       cellStyle: { textAlign: 'center' },
       cellRenderer: (params: any) => {
         const diff = parseFloat(params.value);
-        const color = diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600';
+        const color = diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-black';
         return <span className={`font-mono font-semibold ${color}`}>{diff > 0 ? '+' : ''}{params.value}</span>;
       }
     },

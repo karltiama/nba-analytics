@@ -82,7 +82,7 @@ const PlayerStatsBySeasonType = ({
         return (
           <div className="flex flex-col">
             <span className="font-semibold">{player.name}</span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-black">
               {player.position} • {player.team?.abbreviation || 'Free Agent'}
             </span>
           </div>

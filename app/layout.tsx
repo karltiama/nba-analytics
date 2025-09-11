@@ -40,6 +40,9 @@ export default function RootLayout({
                 <Link href="/" className="hover:text-blue-200 transition-colors">
                   Dashboard
                 </Link>
+                <Link href="/backtest-dashboard" className="hover:text-blue-200 transition-colors">
+                  Model Testing
+                </Link>
                 <Link href="/predictions" className="hover:text-blue-200 transition-colors">
                   Predictions
                 </Link>
