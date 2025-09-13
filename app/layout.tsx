@@ -46,6 +46,9 @@ export default function RootLayout({
                 <Link href="/predictions" className="hover:text-blue-200 transition-colors">
                   Predictions
                 </Link>
+                <Link href="/ml-flow" className="hover:text-blue-200 transition-colors">
+                  ML Flow
+                </Link>
                 <Link href="/betting" className="hover:text-blue-200 transition-colors">
                   My Bets
                 </Link>

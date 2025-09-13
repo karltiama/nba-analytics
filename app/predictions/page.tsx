@@ -174,10 +174,20 @@ export default function PredictionsPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">NBA Betting Predictions</h1>
-        <p className="text-gray-600">
-          AI-powered predictions for NBA point spreads using advanced machine learning
-        </p>
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">NBA Betting Predictions</h1>
+            <p className="text-gray-600">
+              AI-powered predictions for NBA point spreads using advanced machine learning
+            </p>
+          </div>
+          <a 
+            href="/ml-flow" 
+            className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            🤖 See ML Flow
+          </a>
+        </div>
         
         {modelInfo && (
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
@@ -185,6 +195,12 @@ export default function PredictionsPage() {
             <p className="text-blue-700">
               <strong>Model:</strong> {modelInfo.name} v{modelInfo.version} | 
               <strong> Confidence Threshold:</strong> {(modelInfo.threshold * 100).toFixed(1)}%
+            </p>
+            <p className="text-sm text-blue-600 mt-2">
+              💡 <strong>Want to understand how these predictions work?</strong> 
+              <a href="/ml-flow" className="underline hover:text-blue-800 ml-1">
+                Check out the ML Flow Visualization
+              </a>
             </p>
           </div>
         )}
